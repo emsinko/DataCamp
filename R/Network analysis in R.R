@@ -214,3 +214,86 @@ incident(g, '184', mode = c("all"))
 # Show all edges going out from vertex 184
 incident(g, '184', mode = c("out")) # moze byt este all/in/out
 
+######
+## Relationships between vertices 
+######
+
+##
+# Neighbors
+##
+
+# Identify all neighbors of vertex 12 regardless of direction
+neighbors(g, '12', mode = c('all'))
+
+# Identify other vertices that direct edges towards vertex 12
+neighbors(g, '12', mode = c('in'))
+
+# Identify any vertices that receive an edge from vertex 42 and direct an edge to vertex 124
+n1 <- neighbors(g, '42', mode = c('out')) # zo 42 do.. inak: 42 koho sleduje
+n2 <- neighbors(g, '124', mode = c('in')) # do 124 ... inak: kto sleduje 124
+intersection(n1, n2)
+
+##
+# Distances between vertices
+##
+
+# Which two vertices are the furthest apart in the graph ?
+farthest_vertices(g)  # $vertices (dva najvzdialenejsie), $distance (vzdialenost)
+
+# Shows the path sequence between two furthest apart vertices.
+get_diameter(g) # vypise sekvenciu od-do 
+
+# Identify vertices that are reachable within two connections from vertex 42
+ego(g, order = 2, '42', mode = c('out'))
+
+# Identify vertices that can reach vertex 42 within two connections
+ego(g, order = 2, '42', mode = c('in'))
+
+# What is the longest possible path in a network referred to as? == Diameter 
+
+
+##
+# Important nodes
+##
+
+### Degree
+
+# Calculate the out-degree of each vertex
+
+g.outd <- degree(g, mode = c("out"))
+
+# View a summary of out-degree
+table(g.outd)
+
+# Make a histogram of out-degrees
+hist(g.outd, breaks = 30)
+
+# Find the vertex that has the maximum out-degree
+which.max(g.outd)
+
+
+### Betweenness
+
+# Another measure of the importance of a given vertex is its betweenness. 
+# This is an index of how frequently the vertex lies on shortest paths between any two vertices in the network.
+# It can be thought of as how critical the vertex is to the flow of information through a network. 
+# Individuals with high betweenness are key bridges between different parts of a network. 
+# In our measles transmission network, vertices with high betweenness are those children who were central to
+#    passing on the disease to other parts of the network. In this exercise, you will identify the betweenness score for each vertex 
+#    and then make a new plot of the network adjusting the vertex size by its betweenness score to highlight these key vertices.
+
+
+# Calculate betweenness of each vertex
+g.b <- betweenness(g, directed = TRUE)
+
+# Show histogram of vertex betweenness
+hist(g.b, breaks = 80)
+
+# Create plot with vertex size determined by betweenness score
+plot(g, 
+     vertex.label = NA,
+     edge.color = 'black',
+     vertex.size = sqrt(g.b)+1,
+     edge.arrow.size = 0.05,
+     layout = layout_nicely(g))
+
