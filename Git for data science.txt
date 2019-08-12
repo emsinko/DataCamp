@@ -623,7 +623,7 @@ Branching lets you create parallel universes; merging is how you bring them back
 
 To merge two branches, you run git merge source destination (without .. between the two branch names). Git automatically opens an editor so that you can write a log message for the merge; you can either keep its default message or fill in something more informative.	
 
-EX1: You are in the master branch of the dental repository. Merge the changes from the summary-statistics branch (the source) into the master branch (the destination) with the message "Merging summary statistics."
+EX1: You are in the master branch of the dental repository. Merge the changes fro m the summary-statistics branch (the source) into the master branch (the destination) with the message "Merging summary statistics."
 SOLUTION : git merge summary-statistics master -m "Merging summary statistics"
 
 ------------
@@ -648,3 +648,82 @@ When you try to merge update and master, what conflicts does Git report?
 
 Just line B, since it is the only one to change in both branches.
 press ?????
+
+
+--------------
+
+How can I create a brand new repository?   (GIT INIT name_or_repo) 
+
+So far, you have been working with repositories that we created. 
+If you want to create a repository for a new project, you can simply say git init project-name, where "project-name" is the name you want the new repository's root directory to have.
+
+One thing you should not do is create one Git repository inside another. 
+While Git does allow this, updating nested repositories becomes very complicated very quickly, since you need to tell Git which of the two .git directories the 
+update is to be stored in. Very large projects occasionally need to do this, but most programmers and data analysts try to avoid getting into this situation.
+
+--------------
+
+How can I turn an existing project into a Git repository?
+Experienced Git users instinctively start new projects by creating repositories. If you are new to Git, though, or working with people who are, you will often want to convert existing projects into repositories. Doing so is simple: just run
+
+git init
+in the project's root directory, or
+
+git init /path/to/project
+from anywhere else on your computer.
+
+EX: You are in the directory dental, which is not yet a Git repository. Use a single command to convert it to a Git repository.
+
+---------------
+
+How can I create a copy of an existing repository?
+Sometimes you will join a project that is already running, inherit a project from someone else, or continue working on one of your own projects on a new machine. In each case, you will clone an existing repository instead of creating a new one. Cloning a repository does exactly what the name suggests: it creates a copy of an existing repository (including all of its history) in a new directory.
+
+To clone a repository, use the command git clone URL, where URL identifies the repository you want to clone. This will normally be something like
+
+https://github.com/datacamp/project.git
+but for this lesson, we will use a repository on the local file system, so you can just use a path to that directory.
+
+When you clone a repository, Git uses the name of the existing repository as the name of the clone's root directory: for example,
+
+git clone /existing/project
+will create a new directory called project. If you want to call the clone something else, add the directory name you want to the command:
+
+git clone /existing/project newprojectname
+
+EX: You have just inherited the dental data analysis project from a colleague, who tells you that all of their work is in a repository in /home/thunk/repo. Use a single command to clone this repository to create a new repository called dental inside your home directory (so that the new repository is in /home/repl/dental).
+SOLUTION: 
+
+$ pwd
+/home/repl
+$ ls
+$ ls
+$ ls /home/thunk/repo
+bin  data  report.txt  results
+$ git clone /home/thunk/repo dental
+Cloning into 'dental'...
+done.
+
+----------------
+
+How can I find out where a cloned repository originated?
+When you a clone a repository, Git remembers where the original repository was. It does this by storing a remote in the new repository's configuration. A remote is like a browser bookmark with a name and a URL.
+
+If you use an online git repository hosting service like GitHub or Bitbucket, a common task would be that you clone a repository from that site to work locally on your computer. Then the copy on the website is the remote.
+
+If you are in a repository, you can list the names of its remotes using git remote.
+
+If you want more information, you can use git remote -v (for "verbose"), which shows the remote's URLs. Note that "URLs" is plural: it's possible for a remote to have several URLs associated with it for different purposes, though in practice each remote is almost always paired with just one URL.
+
+You are in the dental repository. How many remotes does it have?
+
+------------------
+
+How can I define remotes?
+When you clone a repository, Git automatically creates a remote called origin that points to the original repository. You can add more remotes using:
+
+git remote add remote-name URL
+and remove existing ones using:
+
+git remote rm remote-name
+You can connect any two Git repositories this way, but in practice, you will almost always connect repositories that share some common ancestry.
