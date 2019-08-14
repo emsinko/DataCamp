@@ -401,3 +401,95 @@ for train_index, test_index in str_kf.split(train, train["interest_level"]):  # 
     #testovacie data musia byt vzdy ako posledne resp. az po train datach (co sa casu tyka) 
 
 # Time K-fold cross-validation
+
+# Create TimeSeriesSplit object
+time_kfold = TimeSeriesSplit(n_splits = 3)
+
+# Sort train data by date
+train = train.sort_values("date")
+
+# Iterate through each split
+fold = 0
+for train_index, test_index in time_kfold.split(train):
+    cv_train, cv_test = train.iloc[train_index], train.iloc[test_index]
+    
+    print('Fold :', fold)
+    print('Train date range: from {} to {}'.format(cv_train.date.min(), cv_train.date.max()))
+    print('Test date range: from {} to {}\n'.format(cv_test.date.min(), cv_test.date.max()))
+    fold += 1    
+
+#Fold : 0
+#Train date range: from 2017-12-01 to 2017-12-08
+#Test date range: from 2017-12-08 to 2017-12-16
+
+#Fold : 1
+#Train date range: from 2017-12-01 to 2017-12-16
+#Test date range: from 2017-12-16 to 2017-12-24
+
+#Fold : 2
+#Train date range: from 2017-12-01 to 2017-12-24
+#Test date range: from 2017-12-24 to 2017-12-31    
+    
+
+
+## Overall validation score
+
+# Now it's time to get the actual model performance using cross-validation! How does our store item demand prediction model perform?
+# Your task is to take the Mean Squared Error (MSE) for each fold separately, and then combine these results into a single number.
+# For simplicity, you're given get_fold_mse() function that for each cross-validation split fits a Random Forest model and returns a list of MSE scores by fold. get_fold_mse() accepts two arguments: train and TimeSeriesSplit object.    
+
+import inspect  
+print(inspect.getsource(get_fold_mse))   
+
+def get_fold_mse(train, kf):
+    mse_scores = []
+    
+    for train_index, test_index in kf.split(train):
+        fold_train, fold_test = train.loc[train_index], train.loc[test_index]
+
+        # Fit the data and make predictions
+        # Create a Random Forest object
+        rf = RandomForestRegressor(n_estimators=10, random_state=123)
+
+        # Train a model
+        rf.fit(X=fold_train[['store', 'item']], y=fold_train['sales'])
+
+        # Get predictions for the test set
+        pred = rf.predict(fold_test[['store', 'item']])
+    
+        fold_score = round(mean_squared_error(fold_test['sales'], pred), 5)
+        mse_scores.append(fold_score)
+        
+    return mse_scores
+
+from sklearn.model_selection import TimeSeriesSplit
+import numpy as np
+
+# Sort train data by date
+train = train.sort_values('date')
+
+# Initialize 3-fold time cross-validation
+kf = TimeSeriesSplit(n_splits=3)
+
+# Get MSE scores for each cross-validation split
+mse_scores = get_fold_mse(train, kf)
+
+print('Mean validation MSE: {:.5f}'.format(np.mean(mse_scores)))
+print('MSE by fold: {}'.format(mse_scores))
+print('Overall validation MSE: {:.5f}'.format(np.mean(mse_scores) + np.std(mse_scores)))
+
+#<script.py> output:
+#    Mean validation MSE: 955.49186
+
+#<script.py> output:
+#    Mean validation MSE: 955.49186
+#    MSE by fold: [890.30336, 961.65797, 1014.51424]
+
+#<script.py> output:
+#    Mean validation MSE: 955.49186
+#    MSE by fold: [890.30336, 961.65797, 1014.51424]
+#    Overall validation MSE: 1006.38784
+
+################
+## CHAPTER 3  ##
+################
