@@ -493,3 +493,181 @@ print('Overall validation MSE: {:.5f}'.format(np.mean(mse_scores) + np.std(mse_s
 ################
 ## CHAPTER 3  ##
 ################
+
+
+# Modelig: Preprocess, create new features, improve models, apply tricks  --> LOCAL VALIDATION 
+
+# Feature engineering from prior experience / EDA / domain knowledge
+
+# Feature types: numerical, categorical, datetime, coordinates (spacial data), text,images
+
+# Creating features:
+data = pd.concat([train, test])
+
+train = data[data.id.isin(train.id)]
+test = data[data.id.isin(test.id)]
+
+# Arithmetical features
+price_per_bedroom = price / rooms_number
+
+# Datetime features
+dem["date"] = pd.to_datetime(dem["date"])  ### then apply .dt atribute to obtain any info (hour / minute / second / day / weekday /year /month ..) 
+
+dem["date"].dt. / year,month,weekofyear, dayofyear, day, dayofweek   
+
+# Poznamka dayofweek (Monday = 0, Tuesday = 1 ....)
+
+
+## Arithmetical features
+
+import inspect  
+print(inspect.getsource(get_kfold_rmse))   
+
+def get_kfold_rmse(train):
+    mse_scores = []
+
+    for train_index, test_index in kf.split(train):
+        train = train.fillna(0)
+        feats = [x for x in train.columns if x not in ['Id', 'SalePrice', 'RoofStyle', 'CentralAir']]
+        
+        fold_train, fold_test = train.loc[train_index], train.loc[test_index]
+
+        # Fit the data and make predictions
+        # Create a Random Forest object
+        rf = RandomForestRegressor(n_estimators=10, min_samples_split=10, random_state=123)
+
+        # Train a model
+        rf.fit(X=fold_train[feats], y=fold_train['SalePrice'])
+
+        # Get predictions for the test set
+        pred = rf.predict(fold_test[feats])
+    
+        fold_score = mean_squared_error(fold_test['SalePrice'], pred)
+        mse_scores.append(np.sqrt(fold_score))
+        
+    return round(np.mean(mse_scores) + np.std(mse_scores), 2)
+
+# Look at the initial RMSE
+print('RMSE before feature engineering:', get_kfold_rmse(train))
+
+# Add total area of the house
+train['TotalArea'] = train['TotalBsmtSF'] + train['1stFlrSF'] + train['2ndFlrSF']
+print('RMSE with total area:', get_kfold_rmse(train))
+
+# Add garder area of the property
+train['GardenArea'] = train['LotArea'] - train['1stFlrSF']
+print('RMSE with garden area:', get_kfold_rmse(train))
+
+# Add total number of bathrooms
+train['TotalBath'] = train['FullBath'] + train['HalfBath']
+print('RMSE with number of bathrooms:', get_kfold_rmse(train))
+
+# Nice! You've created three new features. Here you see that house area improved the RMSE by almost $1,000. 
+# Adding garden area improved the RMSE by another $600. 
+# However, with the total number of bathrooms, the RMSE has increased. 
+# It means that you keep the new area features, but do not add "TotalBath" as a new feature. 
+# Let's now work with the datetime features!
+
+
+## Date features
+# Concatenate train and test together
+taxi = pd.concat([train,test])
+
+# Convert pickup date to datetime object
+taxi['pickup_datetime'] = pd.to_datetime(taxi["pickup_datetime"])
+
+# Create day of week feature
+taxi['day_of_week'] = taxi['pickup_datetime'].dt.dayofweek
+
+# Create hour feature
+taxi['hour'] = taxi['pickup_datetime'].dt.hour
+
+# Split back into train and test
+new_train = taxi[taxi.id.isin(test.id)]
+new_test = taxi[taxi.id.isin(train.id)]
+
+## Categorical features
+
+# Label encoding - A->0 , B->1, C -> 2
+
+# One-hot encoding -  CAT==A 0/1 .. dummy premenne  pomocou ohe = pd.get_dummies(df["var"], prefix = "ohe_cat")
+#  after encoding, drop column "var" from df
+#  concat df with ohe :  pd.concat([df, ohe])
+
+# Binary features = flag
+
+# Other encoding approaches:
+   #Backward difference encoding, M-estimate, BaseN, Onehot, Binary, Ordinal, CatBoost encoder, WOE, James-Stein encoder, Hashing, Sum coding,
+
+
+### Encoding 
+   
+# Concatenate train and test together
+houses = pd.concat([train,test])
+
+# Label encoder
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+
+# Create new features
+houses['RoofStyle_enc'] = le.fit_transform(houses['RoofStyle'])
+houses['CentralAir_enc'] = le.fit_transform(houses['CentralAir'])
+
+# Look at new features
+print(houses[['RoofStyle', 'RoofStyle_enc', 'CentralAir', 'CentralAir_enc']].head())
+
+# All right! You can see that categorical variables have been label encoded. 
+# However, as you already know, label encoder is not always a good choice for categorical variables. 
+# Let's go further and apply One-Hot encoding.
+
+
+### One-Hot encoding
+
+#The problem with label encoding is that it implicitly assumes that there is a ranking dependency between the categories. 
+#So, let's change the encoding method for the features "RoofStyle" and "CentralAir" to one-hot encoding. 
+#Again, the train and test DataFrames from House Prices Kaggle competition are already available in your workspace.
+
+#Recall that if you're dealing with binary features (categorical features with only two categories) it is suggested to apply label encoder only.
+#Your goal is to determine which of the mentioned features is not binary, and to apply one-hot encoding only to this one.
+
+# Concatenate train and test together
+houses = pd.concat([train, test])
+
+# Look at feature distributions
+print(houses['RoofStyle'].value_counts())
+print(houses['CentralAir'].value_counts())   # --> binary
+
+# Concatenate train and test together
+houses = pd.concat([train, test])
+
+# Label encode binary 'CentralAir' feature
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+houses['CentralAir_enc'] = le.fit_transform(houses['CentralAir'])
+
+# Create One-Hot encoded features
+ohe = pd.get_dummies(houses['RoofStyle'], prefix='RoofStyle')
+
+# Concatenate OHE features to houses
+houses = pd.concat([houses, ohe], axis=1)
+
+# Look at OHE features
+print(houses[[col for col in houses.columns if 'RoofStyle' in col]].head(3))
+
+# Remember to drop the initial string column, because models will not handle it automatically. 
+# OK, we're done with simple categorical encoders. 
+# Let's move to the target encoder!
+
+#### Target encoding
+
+# High cardinality categorical features -> at least 10 distinct categories 
+
+# Label encoder provides distinct number for each category
+# One hot encoder creates many new fetures
+# Target encoding to the rescue
+
+## 1) Mean targer encoding  -> most commonly used on Kaggle
+#     #1) Calculate mean of the train, apply to the tes.  Pre kazdu kategoriu target rate 
+#     #2) Split train to K folds, calculate mean on k-1 folds and applyt to the k-th fold
+#     #3) Add mean target encoded feature to the model
+
