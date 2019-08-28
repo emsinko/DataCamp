@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug 14 10:57:03 2019
+Created on Wed Aug 28 21:12:13 2019
 
-@author: markus
+@author: marku
 """
+
 
 ###############################################
 ### Winning a Kaggle Competition in Python ####
@@ -664,10 +665,88 @@ print(houses[[col for col in houses.columns if 'RoofStyle' in col]].head(3))
 
 # Label encoder provides distinct number for each category
 # One hot encoder creates many new fetures
-# Target encoding to the rescue
+# Target encoding to the rescue -> na hrad
 
-## 1) Mean targer encoding  -> most commonly used on Kaggle
-#     #1) Calculate mean of the train, apply to the tes.  Pre kazdu kategoriu target rate 
+## 1) Mean target encoding  -> most commonly used on Kaggle
+#     #1) Calculate mean of the train, apply to the test.  Pre kazdu kategoriu target rate 
 #     #2) Split train to K folds, calculate mean on k-1 folds and applyt to the k-th fold
 #     #3) Add mean target encoded feature to the model
+
+# Poznamka: cize vytvorime novu premennu v ktorej sa pre kazdu kategoriu nachadza jej priemerny target rate.
+# V pripade cross-validacie vzdy vynechame jeden fold a pre tento fold vypocitame priemerne hodnoty zo zvysnych k-1 foldov
+
+## Practival guides:
+#  Smoothing: 
+#            1) mean_enc_i = target_sum_i / n_i   (moze dochadzat k over fittingu pri rare events problems)
+#            2) smoothed_mean_enc_i = (target_sum_i + alpha* global_mean) / (n_i + alpha) , alpha z [5,10], global cez vsetky kategorie. Nova kategoria dostane  cisto global mean
+#                    *  new category gets global mean
+
+## EX:
+# Mean target encoding
+# First of all, you will create a function that implements mean target encoding. Remember that you need to develop the two following steps:
+
+# Calculate the mean on the train, apply to the test
+# Split train into K folds. Calculate the out-of-fold mean for each fold, apply to this particular fold
+# Each of these steps will be implemented in a separate function: test_mean_target_encoding() and train_mean_target_encoding(), respectively.
+
+# The final function mean_target_encoding() takes as arguments: the train and test DataFrames, 
+# the name of the categorical column to be encoded, the name of the target column and a 
+# smoothing parameter alpha. 
+# It returns two values: a new feature for train and test DataFrames, respectively.
+
+def test_mean_target_encoding(train, test, target, categorical, alpha=5):
+    # Calculate global mean on the train data
+    global_mean = train[target].mean()
+    
+    # Group by the categorical feature and calculate its properties
+    train_groups = train.groupby(categorical)
+    category_sum = train_groups[target].sum()
+    category_size = train_groups.size()
+    
+    # Calculate smoothed mean target statistics
+    train_statistics = (category_sum + global_mean * alpha) / (category_size + alpha)
+    
+    # Apply statistics to the test data and fill new categories
+    test_feature = test[categorical].map(train_statistics).fillna(global_mean)
+    return test_feature.values
+
+def train_mean_target_encoding(train, target, categorical, alpha=5):
+    # Create 5-fold cross-validation
+    kf = KFold(n_splits=5, random_state=123, shuffle=True)
+    train_feature = pd.Series(index=train.index)
+    
+    # For each folds split
+    for train_index, test_index in kf.split(train):
+        cv_train, cv_test = train.iloc[train_index], train.iloc[test_index]
+      
+        # Calculate out-of-fold statistics and apply to cv_test
+        cv_test_feature = test_mean_target_encoding(cv_train, cv_test, target, categorical, alpha)
+        
+        # Save new feature for this particular fold
+        train_feature.iloc[test_index] = cv_test_feature       
+    return train_feature.values
+
+def mean_target_encoding(train, test, target, categorical, alpha=5):
+  
+    # Get test feature
+    test_feature = test_mean_target_encoding(train, test, target, categorical, alpha)
+    
+    # Get train feature
+    train_feature = train_mean_target_encoding(train, target, categorical, alpha)
+    
+    # Return new features to add to the model
+    return train_feature, test_feature
+
+### K-fold cross-validation
+
+# You will work with a binary classification problem on a subsample from Kaggle playground competition. 
+# The objective of this competition is to predict whether a famous basketball player Kobe Bryant 
+# scored a goal or missed a particular shot.
+
+# Train data is available in your workspace as bryant_shots DataFrame. 
+# It contains data on 10,000 shots with its properties and a target variable "shot_made_flag" -- whether shot was scored or not.
+# One of the features in the data is "game_id" -- a particular game where the shot was made. 
+
+# There are 541 distinct games. So, you deal with a high-cardinality categorical feature. Let's encode it using a target mean!
+# Suppose you're using 5-fold cross-validation and want to evaluate a mean target encoded feature on the local validation.
 
