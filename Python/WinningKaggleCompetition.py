@@ -750,3 +750,52 @@ def mean_target_encoding(train, test, target, categorical, alpha=5):
 # There are 541 distinct games. So, you deal with a high-cardinality categorical feature. Let's encode it using a target mean!
 # Suppose you're using 5-fold cross-validation and want to evaluate a mean target encoded feature on the local validation.
 
+# Create 5-fold cross-validation
+kf = KFold(n_splits=5, random_state=123, shuffle=True)
+
+
+# For each folds split
+for train_index, test_index in kf.split(bryant_shots):
+    cv_train, cv_test = bryant_shots.iloc[train_index], bryant_shots.iloc[test_index]
+
+    # Create mean target encoded feature
+    cv_train['game_id_enc'], cv_test['game_id_enc'] = mean_target_encoding(train=cv_train,
+                                                                           test=cv_test,
+                                                                           target='shot_made_flag',
+                                                                           categorical= 'game_id',
+                                                                           alpha=5)
+    # Look at the encoding
+    print(cv_train[['game_id', 'shot_made_flag', 'game_id_enc']].sample(n=1))
+
+# Nice! You could see different game encodings for each validation split in the output. 
+# The main conclusion you should make: while using local cross-validation, you need to 
+# repeat mean target encoding procedure inside each folds split separately. 
+# Go on to try other problem types beyond binary classification!
+
+### Beyond binary classification
+
+#Of course, binary classification is just a single special case. 
+#Target encoding could be applied to any target variable type:
+
+#For binary classification usually mean target encoding is used
+#For regression mean could be changed to median, quartiles, etc.
+#For multi-class classification with N classes we create N features with target mean for each category in one vs. all fashion
+#The mean_target_encoding() function you've created could be used for any target type specified above. Let's apply it for the regression problem on the example of House Prices Kaggle competition.
+
+#Your goal is to encode a categorical feature "RoofStyle" using mean target encoding. 
+#The train and test DataFrames are already available in your workspace.
+
+# Create mean target encoded feature
+train['RoofStyle_enc'], test['RoofStyle_enc'] = mean_target_encoding(train=train,
+                                                                     test=test,
+                                                                     target="SalePrice",
+                                                                     categorical="RoofStyle",
+                                                                     alpha=10)
+
+# Look at the encoding
+print(test[['RoofStyle', 'RoofStyle_enc']].drop_duplicates())
+
+# So, you observe that houses with the Hip roof are the most pricy, while houses 
+# with the Gambrel roof are the cheapest. 
+# It's exactly the goal of target encoding: you've encoded categorical feature in such a manner that there is now a correlation between category values and target variable. 
+# We're done with categorical encoders. Not it's time to talk about the missing data!
