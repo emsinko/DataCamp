@@ -799,3 +799,47 @@ print(test[['RoofStyle', 'RoofStyle_enc']].drop_duplicates())
 # with the Gambrel roof are the cheapest. 
 # It's exactly the goal of target encoding: you've encoded categorical feature in such a manner that there is now a correlation between category values and target variable. 
 # We're done with categorical encoders. Not it's time to talk about the missing data!
+
+#########
+### Missing data
+#########
+
+# Read dataframe
+twosigma = pd.read_csv('twosigma_train.csv')
+
+# Find the number of missing values in each column
+print(twosigma.isnull().sum())
+
+# Look at the columns with the missing values
+print(twosigma[["building_id", "price"]].head())
+
+
+# With sklearn imputer:
+
+#### Numerical
+# Import SimpleImputer
+from sklearn.impute import SimpleImputer
+
+# Create mean imputer
+mean_imputer = SimpleImputer(strategy='mean')
+
+# Price imputation
+rental_listings[['price']] = mean_imputer.fit_transform(rental_listings[["price"]])
+
+#### Categorical
+# Import SimpleImputer
+from sklearn.impute import SimpleImputer
+
+# Create constant imputer
+constant_imputer = SimpleImputer(strategy='constant', fill_value = "MISSING")
+
+# building_id imputation
+rental_listings[['building_id']] = constant_imputer.fit_transform(rental_listings[['building_id']])
+
+
+
+#################
+### CHAPTER 4 ###
+#################
+
+# Create baseline models
