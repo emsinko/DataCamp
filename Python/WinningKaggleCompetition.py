@@ -1006,3 +1006,115 @@ print(results)
 
 # Do not spend too much time on the hyperparameter tuning at the beginning of the competition! 
 # Another approach that almost always improves your solution is model ensembling. Go on for it
+
+###  Model blending
+
+# You will start creating model ensembles with a blending technique.
+# Your goal is to train 2 different models on the New York City Taxi competition data. 
+# Make predictions on the test data and then blend them using a simple arithmetic mean.
+# The train and test DataFrames are already available in your workspace. features is a list of columns 
+# to be used for training and it is also available in your workspace. The target variable name is "fare_amount".
+
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+
+# Train a Gradient Boosting model
+gb = GradientBoostingRegressor().fit(train[features], train.fare_amount)
+
+# Train a Random Forest model
+rf = RandomForestRegressor().fit(train[features], train.fare_amount)
+
+# Make predictions on the test data
+test['gb_pred'] = gb.predict(test[features])
+test['rf_pred'] = rf.predict(test[features])
+
+# Find mean of model predictions
+test['blend'] = (test['gb_pred'] + test['rf_pred']) / 2
+print(test[['gb_pred', 'rf_pred', 'blend']].head(3))
+
+
+
+### Model stacking I
+
+# Now it's time for stacking. To implement the stacking approach, you will follow the 6 steps we've discussed in the previous video:
+
+# Split train data into two parts
+# Train multiple models on Part 1
+# Make predictions on Part 2
+# Make predictions on the test data
+# Train a new model on Part 2 using predictions as features
+# Make predictions on the test data using the 2nd level model
+# train and test DataFrames are already available in your workspace. features is a list of columns to be used for training on the Part 1 data and it is also available in your workspace. Target variable name is "fare_amount".
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+
+# Split train data into two parts
+part_1, part_2 = train_test_split(train, test_size = 0.5, random_state=123)
+
+# Train a Gradient Boosting model on Part 1
+gb = GradientBoostingRegressor().fit(part_1[features], part_1.fare_amount)
+
+# Train a Random Forest model on Part 1
+rf = RandomForestRegressor().fit(part_1[features], part_2.fare_amount)
+
+# Make predictions on the Part 2 data
+part_2['gb_pred'] = gb.predict(part_2[features])
+part_2['rf_pred'] = rf.predict(part_2[features])
+
+# Make predictions on the test data
+test['gb_pred'] = gb.predict(test[features])
+test['rf_pred'] = rf.predict(test[features])
+
+from sklearn.linear_model import LinearRegression
+
+# Create linear regression model without the intercept
+lr = LinearRegression(fit_intercept=False)
+
+# Train 2nd level model on the Part 2 data
+lr.fit(part_2[['gb_pred', 'rf_pred']], part_2.fare_amount)
+
+# Make stacking predictions on the test data
+test['stacking'] = lr.predict(test[['gb_pred', 'rf_pred']])
+
+# Look at the model coefficients
+print(lr.coef_)
+
+
+
+# Testing Kaggle forum ideas 
+
+# Delete passenger_count column
+new_train_1 = train.drop('passenger_count', axis=1)
+
+# Compare validation scores
+initial_score = get_cv_score(train)
+new_score = get_cv_score(new_train_1)
+
+print('Initial score is {} and the new score is {}'.format(initial_score, new_score))
+
+
+# Create copy of the initial train DataFrame
+new_train_2 = train.copy()
+
+# Find sum of pickup latitude and ride distance
+new_train_2['weird_feature'] = new_train_2.pickup_latitude + new_train_2.distance_km
+
+# Compare validation scores
+initial_score = get_cv_score(train)
+new_score = get_cv_score(new_train_2)
+
+print('Initial score is {} and the new score is {}'.format(initial_score, new_score))
+
+# Strategy for choosing final submissions: 
+
+#Select final submissions
+# The last action in every competition is selecting final submissions. Your goal is to select 2 final submissions based on the local validation and Public Leaderboard scores. Suppose that the competition metric is RMSE (the lower the metric the better). Keep up with a selection strategy we've discussed in the slides:
+
+#Local validation: 1.25; Leaderboard: 1.35.
+#Local validation: 1.32; Leaderboard: 1.39.
+#Local validation: 1.10; Leaderboard: 1.29. --> #best
+#Local validation: 1.17; Leaderboard: 1.25.
+#Local validation: 1.21; Leaderboard: 1.32.
+
+# Idealne je asi si vybrat submision s najlepsim local validacnym skore a najlepsim public leaderboard skore.
+
