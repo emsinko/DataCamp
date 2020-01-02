@@ -125,7 +125,7 @@ tidy_animal_farm <-
 # They muddy your results and can increase computation time for large analysis tasks.
 
 ####
-## Text preprocessing: Stemming - koreÚ slova 
+## Text preprocessing: Stemming - kore≈à slova 
 ####
 
 # The root of words are often more important than their endings, especially when it comes to text analysis. 
@@ -495,8 +495,8 @@ crude_weights %>%
 # This could be because they were mentioned just a few times in that article, or because they 
 #     were used in too many articles.
 
-## Z¡VER: TF-IDF(slovo, document_id, SUBODR-DOKUMENTOV).
-#  Ak je TF-IDF nÌzke, znamena to, ze je slovo sa vykytuje malo krat v danom dokumente, ALEBO! velmi casto v subore dokumentov
+## Z√ÅVER: TF-IDF(slovo, document_id, SUBODR-DOKUMENTOV).
+#  Ak je TF-IDF n√≠zke, znamena to, ze je slovo sa vykytuje malo krat v danom dokumente, ALEBO! velmi casto v subore dokumentov
 #  Ak je TF-IDF vysoke, znamena to, ze dane slovo je pre clanok "vynimocne", nakolko sa musi vyskytovat vela krat v clanku a zaroven sa nevyskytuje casto vo viacerych odlisnych clankoch CORPUSU
 
 
@@ -577,7 +577,7 @@ animal_matrix <- animal_tokens %>%
 # OPAKOM cast_dtm je tidy(), ktora z dtm objektu vytvori sumarizovanu tabulku s document_id, word, count stlpcami
 
 # Obrovske sparse matice mozu sposobovat vypoctove problemy a preto mozeme moc spars "terms = word"  vymazat a zmensit dimenzie matice
-# funkcia: removeSparseTerms(animal_matrix, sparse = 0.90) - zredukuje slova, ktore chybaju vo viac ako 90% dokumentoch (vet·ch)
+# funkcia: removeSparseTerms(animal_matrix, sparse = 0.90) - zredukuje slova, ktore chybaju vo viac ako 90% dokumentoch (vet√°ch)
 #                                                          - ak podiel 0-vych hodnot pre stlpcec (term) > 0.9, tak ho vyhodi 
 
 ### Exercise
@@ -687,14 +687,14 @@ print(rfc)
 # LDA is a mathematical method for estimating both of these at the same time: 
 #   finding the mixture of words that is associated with each topic, 
 #   while also determining the mixture of topics that describes each document. 
-# There are a number of existing implementations of this algorithm, and weíll explore one of them in depth.
+# There are a number of existing implementations of this algorithm, and we‚Äôll explore one of them in depth.
 
 #### 
 ## Word-topic probabilities - beta parameter
 ####
 
 # We introduced the tidy() method, originally from the broom package (Robinson 2017), for tidying model objects. 
-# The tidytext package provides this method for extracting the per-topic-per-word probabilities, called ìbetaî,from the model.
+# The tidytext package provides this method for extracting the per-topic-per-word probabilities, called ‚Äúbeta‚Äù,from the model.
 
 library(tidytext)
 library(topicmodels)
@@ -708,7 +708,7 @@ ap_topics
 
 # Notice that this has turned the model into a one-topic-per-term-per-row format. 
 # For each combination, the model computes the probability of that term being generated from that topic. 
-# For example, the term ìaaronî has a 1.686917x 10-12 probability of being generated from topic 1, but a 3.89◊10-5 probability of being generated from topic 2.
+# For example, the term ‚Äúaaron‚Äù has a 1.686917x 10‚àí12 probability of being generated from topic 1, but a 3.89√ó10-5 probability of being generated from topic 2.
 
 library(ggplot2)
 library(dplyr)
@@ -732,10 +732,10 @@ ap_top_terms %>%
 ## Document-topic probabilities - gamm parameter
 ####
 
-# Popisuje, ake su distribucie ˙re jednotlive dokumenty / vety vzhladom na topic. 
+# Popisuje, ake su distribucie √∫re jednotlive dokumenty / vety vzhladom na topic. 
 
 # Besides estimating each topic as a mixture of words, LDA also models each document as a mixture of topics. 
-# We can examine the per-document-per-topic probabilities, called ìgammaî, with the matrix = "gamma" argument to tidy().
+# We can examine the per-document-per-topic probabilities, called ‚Äúgamma‚Äù, with the matrix = "gamma" argument to tidy().
 # Each of these values is an estimated proportion of words from that document that are generated from that topic
 
 ap_documents <- tidy(ap_lda, matrix = "gamma")
@@ -877,7 +877,7 @@ library(tidytext)
 tidytext::sentiments ## rozdielne ako ukazuju na datacampe
 
 # The tidytext package contains several sentiment lexicons. Three general-purpose lexicons are:
-# 1) AFINN from Finn Arup Nielsen,
+# 1) AFINN from Finn √Örup Nielsen,
 # 2) bing from Bing Liu and collaborators, and
 # 3) nrc from Saif Mohammad and Peter Turney.
 
@@ -885,7 +885,7 @@ tidytext::sentiments ## rozdielne ako ukazuju na datacampe
 # These lexicons contain many English words and the words are assigned scores 
 # for positive/negative sentiment, and also possibly emotions like joy, anger, sadness, and so forth. 
 
-# The nrc lexicon categorizes words in a binary fashion (ìyesî/ìnoî) into categories of positive, negative, anger, 
+# The nrc lexicon categorizes words in a binary fashion (‚Äúyes‚Äù/‚Äúno‚Äù) into categories of positive, negative, anger, 
     # anticipation, disgust, fear, joy, sadness, surprise, and trust. 
 # The bing lexicon categorizes words in a binary fashion into positive and negative categories. 
 # The AFINN lexicon assigns words with a score that runs between -5 and 5, with negative scores indicating negative sentiment and positive scores indicating positive sentiment. 
@@ -898,7 +898,7 @@ get_sentiments("nrc")
 
 # Not every English word is in the lexicons because many English words are pretty neutral. 
 # It is important to keep in mind that these methods do not take into account qualifiers before a word, 
-#     such as in ìno goodî or ìnot trueî; a lexicon-based method like this is based on unigrams only. 
+#     such as in ‚Äúno good‚Äù or ‚Äúnot true‚Äù; a lexicon-based method like this is based on unigrams only. 
 # For many kinds of text (like the narrative examples below), there are not sustained sections of sarcasm or negated text, so this is not an important effect
 
 ### BING lexikon: 
@@ -1006,6 +1006,9 @@ word2vec_model <- h2O.word2vec(words, min_word_freq = 5, epochs = 5) # epochs - 
 # word synonyms:
 h2o.findSynonyms(w2v.model, "animal")
 
+
+####
+
 ####
 ## h2o practice
 
@@ -1016,8 +1019,120 @@ h2o.findSynonyms(w2v.model, "animal")
 # You have a dataset called left_right which contains tweets that were auto-tweeted during the 2016 US election campaign.
 # Instead of preparing your data for other text analysis techniques, prepare this dataset for use with the h2o library.
 
+# Initialize an h2o session
+library(h2o)
+h2o.init()
 
-###########
+# Create an h2o object for left_right
+h2o_object = as.h2o(left_right)
+
+# Tokenize the words from the column of text in left_right
+tweet_words <- h2o.tokenize(h2o_object$content, "\\\\W+")
+
+# Lowercase
+tweet_words <- h2o.tolower(tweet_words)
+# Remove stopwords from tweet_words
+tweet_words <- tweet_words[is.na(tweet_words) || (!tweet_words %in% stop_words$word),]
+tweet_words
+
+#####
+## word2vec
+
+# You have been web-scrapping a lot of job titles from the internet and are unsure if you need to scrap additional job titles for your analysis. 
+# So far, you have collected over 13,000 job titles in a dataset called job_titles. 
+# You have read that word2vec generally performs best if the model has enough data to properly train, and if 
+#    words are not mentioned enough in your data, the model might not be useful.
+# In this exercise you will test how helpful additional data is by running your model 3 times; each run will use additional data.
+
+library(h2o)
+h2o.init()
+
+set.seed(1111)
+# Use 33% of the available data
+sample_size <- floor(0.33 * nrow(job_titles))
+sample_data <- sample(nrow(job_titles), size = sample_size)
+
+h2o_object = as.h2o(job_titles[sample_data, ])
+words <- h2o.tokenize(h2o_object$jobtitle, "\\\\W+")
+words <- h2o.tolower(words)
+words = words[is.na(words) || (!words %in% stop_words$word),]
+
+word2vec_model <- h2o.word2vec(words, min_word_freq=5, epochs = 10)
+# Find synonyms for the word "teacher"
+h2o.findSynonyms(word2vec_model, "teacher", count=10)
+
+## Well done. After adding additional data, the words most similar to teacher started to become more clear.
+
+######
+# Additional NLP analysis - out of scope
+######
+
+# BERT = Bidirectional Encoder Representations from Transformers -- google 2017
+#      = pre-trained model used in transfer learning for NLP tasks
+#      = pre-trained on tons of unlabeled data to create a language representation
+#      = requires only small amounts of labelled data to train for specific task
+#   use for:
+#    * supervised tasks,
+#    * to create features for NLP models 
+
+# ERNIE = Enhanced Representation through kNowledge intEgration
+# 
+
+###
+# Named entity recognition:
+#    * classifies named entities within text
+#    * Examples: names, locations, organizations, values
+#    * used for: extracting entities from tweets, aiding recommendation engines, search algorithms
+
+##
+# Part-of-speech tagging:
+#     * tagging each word with their part-of-speech: nouns (podstatne meno), verbs (sloveso), adjectives (pridavne), .....
+#     * vyuzitie v sentiment analysis, creates features in nlp
+#     * enhances what a model knows about each word in text
+
+
+# Feature engineering for NLP - python (datacamp course)
+
+#####
+## Reviewing methods #1
+
+# Text analysis is full of methods, models, and techniques that can be used to better understand text. In this exercise, you will review some of these methods.
+
+# a: Labels each word within text as either a noun, verb, adjective, or other category.
+# b: A model pre-trained on a vast amount of text data to create a language representation used for supervised learning.
+# c: A type of analysis that looks to describe text as either positive or negative and can be used to find active vs passive terms.
+# d: A modeling technique used to label entire text into a single category such as relevant or not-relevant.
+
+# Sentiment Analysis
+SA <- c
+
+# Classifcation Modeling
+CM <- d
+
+# BERT
+BERT <- b
+
+# Part-of-speech Tagging
+POS <- a
+
+# e: Modeling techniques, including LDA, used to cluster text into groups or types based on similar words being used.
+# f: A method for searching through text and tagging words that distinguish people, locations, or organizations.
+# g: Method used to search text for specific patterns.
+# h: Representing words using a large vector space where similar words are close together within the vector space.
+
+# Named Entity Recognition
+NER <- f
+
+# Topic Modeling
+TM <- e
+
+# Word Embeddings 
+WE <- h
+
+# Regular Expressions
+REGEX <- g
+
+#######
 ## Moje skusanie - testovanie nevysvetlenych detailov-
 
 # https://www.kaggle.com/kernels/scriptcontent/25728798/download
