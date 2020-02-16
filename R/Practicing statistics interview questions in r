@@ -91,3 +91,42 @@ pca_letters <- prcomp(letters, rank = 7)
 
 # Output spread measures of principal components
 summary(pca_letters)
+
+# ===================================================
+
+## ANOVA:
+
+# assumptions: 
+  # independence of cases 
+  # normal distributions
+  # homogenity of variances
+  
+oneway.test(value ~ group,  data = data, var.equal = TRUE
+
+
+# Test normality across groups
+tapply(PlantGrowth$weight, PlantGrowth$group, FUN = shapiro.test)
+
+# Check the homogeneity of variance
+bartlett.test(weight ~ group, data = PlantGrowth)
+
+# Test normality across groups
+tapply(PlantGrowth$weight, PlantGrowth$group, FUN = shapiro.test)
+
+# Perform one-way ANOVA
+oneway.test(weight ~ group, data = PlantGrowth, var.equal = TRUE)
+
+# ==========================================================
+
+## Linear regression:
+
+# Assumptions:
+   # linear relationship between x_i any y
+   # normal errors (residuals)
+   # homoscedastic errors
+   # independent observations
+
+# Evaluate
+Metrics::rmse()
+Metrics::mae()
+
